@@ -153,6 +153,35 @@ class EnemyTurret{
         double shootTimer;
 };
 
+class EnemySpawner{
+    public :
+        EnemySpawner(float x, float y) : x(x), y(y), hp(10), shootTimer(0), timeBetweenShot(2000){}
+
+        int getX() const{
+            return x;
+        }
+
+        int getY() const{
+            return y;
+        }
+
+        int getHP() const{
+            return hp;
+        }
+
+        void getShot(){
+            hp--;
+        }
+
+    private:
+        float x,y;
+        int hp, shootTimer, timeBetweenShot;
+};
+
+class EnemySeeking{
+
+};
+
 void playerShoot(Player& player, std::vector<Bullet>& bullets){
     int timePassed = (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - player.shootTime)).count();
     if(timePassed >= 250){
@@ -285,12 +314,12 @@ void drawBullet(Bullet bullet, sf::RenderWindow& window){
         quad[0].color = sf::Color::White;
         quad[1].color = sf::Color::White;
         quad[2].color = sf::Color::White;
-        quad[2].color = sf::Color::White;
+        quad[3].color = sf::Color::White;
 
-        quad[0].position = sf::Vector2f(bullet.getX()+20*cos(bullet.getAngle()-PI/8),bullet.getY()+20*sin(bullet.getAngle()-PI/8));
-        quad[1].position = sf::Vector2f(bullet.getX()+20*cos(bullet.getAngle()+PI/8),bullet.getY()+20*sin(bullet.getAngle()+PI/8));
-        quad[2].position = sf::Vector2f(bullet.getX()+20*cos(bullet.getAngle()+PI*7/8),bullet.getY()+20*sin(bullet.getAngle()+PI*7/8));
-        quad[3].position = sf::Vector2f(bullet.getX()+20*cos(bullet.getAngle()+PI*9/8),bullet.getY()+20*sin(bullet.getAngle()+PI*9/8));
+        quad[0].position = sf::Vector2f(20*std::cos(bullet.getAngle())+10*std::sin(bullet.getAngle())+bullet.getX(),-20*std::sin(bullet.getAngle())+10*std::cos(bullet.getAngle())+bullet.getY());
+        quad[1].position = sf::Vector2f(-20*std::cos(bullet.getAngle())+10*std::sin(bullet.getAngle())+bullet.getX(),20*std::sin(bullet.getAngle())+10*std::cos(bullet.getAngle())+bullet.getY());
+        quad[2].position = sf::Vector2f(-20*std::cos(bullet.getAngle())-10*std::sin(bullet.getAngle())+bullet.getX(),20*std::sin(bullet.getAngle())-10*std::cos(bullet.getAngle())+bullet.getY());
+        quad[3].position = sf::Vector2f(20*std::cos(bullet.getAngle())-10*std::sin(bullet.getAngle())+bullet.getX(),-20*std::sin(bullet.getAngle())-10*std::cos(bullet.getAngle())+bullet.getY());
         window.draw(quad);
     }
     else{
@@ -403,9 +432,6 @@ int main(void){
         //DRAW THE SPRITE OF THE PLAYER
         drawPlayer(player,window);
 
-        //DRAW HEALTH OF THE PLAYER
-        drawHealth(player,window);
-
         ////Verify the angle of the player
         sf::VertexArray line(sf::Lines, 2);
         sf::Vector2f startPoint(mousePosition.x,mousePosition.y);
@@ -500,6 +526,9 @@ int main(void){
             }
             id_enemy++;
         }
+
+        //DRAW HEALTH OF THE PLAYER
+        drawHealth(player,window);
 
         window.display();
     }
