@@ -25,6 +25,7 @@ class Player{
         float speed = 0.35;
         int hp = 10;
         double angle;
+        std::chrono::time_point<std::chrono::steady_clock> shootTime;
 };
 
 class Bullet{
@@ -143,6 +144,14 @@ class EnemyTurret{
         int hp,timeBetweenShot;
         double shootTimer;
 };
+
+void playerShoot(Player& player, std::vector<Bullet>& bullets){
+    int timePassed = (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - player.shootTime)).count();
+    if(timePassed >= 250){
+            bullets.emplace_back(player.x,player.y,player.angle,0.75,true,false);
+            player.shootTime = std::chrono::steady_clock::now();
+    }
+}
 
 void drawPlayer(Player player, sf::RenderWindow& window){
     sf::VertexArray player_left_part(sf::Triangles,3);
@@ -295,6 +304,7 @@ int main(void){
     sf::RenderWindow window(sf::VideoMode(displayX,displayY), "Nichi Hachi");
 
     Player player;
+    player.shootTime = std::chrono::steady_clock::now();
 
     //Init EnemiesShooter Array
     std::vector<EnemyShooter> enemiesShooter;
@@ -350,7 +360,7 @@ int main(void){
         player.angle = calcul_angle(player.x,player.y,mousePosition.x,mousePosition.y);
         
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
-            bullets.emplace_back(player.x,player.y,player.angle,1,true,false);
+            playerShoot(player,bullets);
         }
 
         //DRAW THE SPRITE OF THE PLAYER
