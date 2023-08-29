@@ -8,7 +8,7 @@ const int displayX = 1000;
 const int displayY = 1000;
 const int hauteur = 24;
 const int rayon = 19;
-const int bulletRayon = 12;
+const int bulletRadius = 15;
 const double PI = std::acos(-1);
 sf::Color enemiesColor(200,200,200);
 sf::Color enemiesBulletInvinsibleColor(255,102,51);
@@ -255,9 +255,9 @@ void drawEnemyTurret(EnemyTurret enemy, sf::RenderWindow& window){
     enemy_part[1].color = enemiesColor;
     enemy_part[2].color = enemiesColor;
     for(int i=0;i<8;i++){
-        enemy_part[0].position = sf::Vector2f(enemy.getX()+radius/2,enemy.getY()+radius/2);
-        enemy_part[1].position = sf::Vector2f(enemy.getX()+radius/2+radius*cos((i+1)*PI/4-enemy.getAngle()),enemy.getY()+radius/2+radius*sin((i+1)*PI/4-enemy.getAngle()));
-        enemy_part[2].position = sf::Vector2f(enemy.getX()+radius/2+radius*cos((i+2)*PI/4-enemy.getAngle()),enemy.getY()+radius/2+radius*sin((i+2)*PI/4-enemy.getAngle()));
+        enemy_part[0].position = sf::Vector2f(enemy.getX(),enemy.getY());
+        enemy_part[1].position = sf::Vector2f(enemy.getX()+radius*cos((i+1)*PI/4-enemy.getAngle()),enemy.getY()+radius*sin((i+1)*PI/4-enemy.getAngle()));
+        enemy_part[2].position = sf::Vector2f(enemy.getX()+radius*cos((i+2)*PI/4-enemy.getAngle()),enemy.getY()+radius*sin((i+2)*PI/4-enemy.getAngle()));
         window.draw(enemy_part);
     }
 }
@@ -278,14 +278,14 @@ void drawBullet(Bullet bullet, sf::RenderWindow& window){
     }
     else{
         sf::CircleShape circle;
-        circle.setRadius(bulletRayon);
+        circle.setRadius(bulletRadius);
         if(bullet.isDestructible()){
             circle.setFillColor(enemiesBulletDestructibleColor);
             }
         else{
             circle.setFillColor(enemiesBulletInvinsibleColor);
         }
-        circle.setPosition(bullet.getX(),bullet.getY());
+        circle.setPosition(bullet.getX()-bulletRadius,bullet.getY()-bulletRadius);
         window.draw(circle);
     }
 }
@@ -310,7 +310,6 @@ int main(void){
 
     //Init Bullet Array
     std::vector<Bullet> bullets;
-    bullets.emplace_back(400,400,0,0.1,true,false);
 
 
     //Timer
@@ -350,6 +349,9 @@ int main(void){
         sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
         player.angle = calcul_angle(player.x,player.y,mousePosition.x,mousePosition.y);
         
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
+            bullets.emplace_back(player.x,player.y,player.angle,1,true,false);
+        }
 
         //DRAW THE SPRITE OF THE PLAYER
         drawPlayer(player,window);
@@ -368,7 +370,7 @@ int main(void){
 
 
         //BULLETS INTERACTION
-        int interation = 0;
+        int iteration = 0;
         for(Bullet &bullet : bullets){
             bullet.update();
 
@@ -378,16 +380,31 @@ int main(void){
             //If the bullet touch the player HitBox: -1HP and destroy the bullet
             if(!bullet.isAlly()){
                 int distance_between_bullet_player = sqrt((player.x-bullet.getX())*(player.x-bullet.getX()) + (player.y-bullet.getY())*(player.y-bullet.getY()));
-                if(distance_between_bullet_player <= rayon/2+bulletRayon){
+                if(distance_between_bullet_player <= rayon/2+bulletRadius){
                     player.hp -= 1;
-                    bullets.erase(bullets.begin()+interation);
+                    bullets.erase(bullets.begin()+iteration);
+                }
+            }
+            else{
+                int number_bullet=0;
+                for(Bullet &bullet_collision : bullets){
+                    if(!bullet_collision.isAlly() && bullet_collision.isDestructible()){
+                        int diffX = bullet_collision.getX()-bullet.getX();
+                        int diffY = bullet_collision.getY()-bullet.getY();
+                        if(diffX>-bulletRadius && diffX<bulletRadius && diffY>-bulletRadius && diffY<bulletRadius){
+                            bullets.erase(bullets.begin()+number_bullet);
+                            bullets.erase(bullets.begin()+iteration);
+                            iteration--;
+                        }
+                    }
+                    number_bullet++;
                 }
             }
 
-            if(bullet.getX()<0|| bullet.getY()<0 || bullet.getX()>displayX-bulletRayon || bullet.getY()>displayY-bulletRayon){
-                bullets.erase(bullets.begin()+interation);
+            if(bullet.getX()<0|| bullet.getY()<0 || bullet.getX()>displayX-bulletRadius || bullet.getY()>displayY-bulletRadius){
+                bullets.erase(bullets.begin()+iteration);
             }
-            interation++;
+            iteration++;
         }
 
         //ENEMIES INTERACTION
