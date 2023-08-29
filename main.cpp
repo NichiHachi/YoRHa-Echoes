@@ -97,6 +97,10 @@ class EnemyShooter{
             return hp;
         }
 
+        void getShot(){
+            hp--;
+        }
+
     private:
         float x,y,speed,angle;
         int hp,timeBetweenShot;
@@ -137,6 +141,10 @@ class EnemyTurret{
 
         int getHP() const{
             return hp;
+        }
+
+        void getShot(){
+            hp--;
         }
 
     private:
@@ -299,6 +307,35 @@ void drawBullet(Bullet bullet, sf::RenderWindow& window){
     }
 }
 
+int haveTouchEnemyShooter(std::vector<EnemyShooter> enemies,int x, int y){
+    int id_enemy = 0;
+    int distance_between_points,diffX,diffY;
+    for(EnemyShooter &enemy : enemies){
+        diffX = enemy.getX()-x;
+        diffY = enemy.getY()-y;
+        distance_between_points = std::sqrt(diffX*diffX+diffY*diffY);
+        if(distance_between_points<bulletRadius+rayon){
+            return id_enemy;
+        }
+        id_enemy++;
+    }
+    return -1;
+}
+
+int haveTouchEnemyTurret(std::vector<EnemyTurret> enemies,int x, int y){
+    int id_enemy = 0;
+    int distance_between_points,diffX,diffY;
+    for(EnemyTurret &enemy : enemies){
+        diffX = enemy.getX()-x;
+        diffY = enemy.getY()-y;
+        distance_between_points = std::sqrt(diffX*diffX+diffY*diffY);
+        if(distance_between_points<bulletRadius+rayon){
+            return id_enemy;
+        }
+        id_enemy++;
+    }
+    return -1;
+}
 
 int main(void){
     sf::RenderWindow window(sf::VideoMode(displayX,displayY), "Nichi Hachi");
@@ -393,6 +430,7 @@ int main(void){
                 if(distance_between_bullet_player <= rayon/2+bulletRadius){
                     player.hp -= 1;
                     bullets.erase(bullets.begin()+iteration);
+                    iteration--;
                 }
             }
             else{
@@ -409,6 +447,19 @@ int main(void){
                     }
                     number_bullet++;
                 }
+                int id_enemy = haveTouchEnemyShooter(enemiesShooter,bullet.getX(),bullet.getY());
+                if(id_enemy!=-1){
+                    bullets.erase(bullets.begin()+iteration);
+                    enemiesShooter[id_enemy].getShot();
+                    iteration--;
+                }
+                
+                id_enemy = haveTouchEnemyTurret(enemiesTurret,bullet.getX(),bullet.getY());
+                if(id_enemy!=-1){
+                    bullets.erase(bullets.begin()+iteration);
+                    enemiesTurret[id_enemy].getShot();
+                    iteration--;
+                }
             }
 
             if(bullet.getX()<0|| bullet.getY()<0 || bullet.getX()>displayX-bulletRadius || bullet.getY()>displayY-bulletRadius){
@@ -419,6 +470,7 @@ int main(void){
 
         //ENEMIES INTERACTION
         ////EnemyShooter update
+        int id_enemy = 0;
         for(EnemyShooter &enemy : enemiesShooter){
             float angleEnemyToPlayer = calcul_angle(enemy.getX(),enemy.getY(),player.x,player.y);
             enemy.update(player,angleEnemyToPlayer,bullets,timePassed);
@@ -426,22 +478,27 @@ int main(void){
             //DRAW ENEMY    
             drawEnemyShooter(enemy,window);
 
-            ////Verify the angle between the enemy and the player
-            /*sf::VertexArray line(sf::Lines, 2);
-            sf::Vector2f startPoint(enemy.getX(),enemy.getY());
-            sf::Vector2f endPoint(player.x,player.y);
-            line[0].position = startPoint;
-            line[1].position = endPoint;
-            line[0].color = sf::Color::Green;
-            window.draw(line);*/
+            //If the enemy dies
+            if(enemy.getHP()<=0){
+                enemiesShooter.erase(enemiesShooter.begin()+id_enemy);
+                id_enemy--;
+            }
+            id_enemy++;
         }
 
         ////EnemyTurret update
+        id_enemy = 0;
         for(EnemyTurret &enemy : enemiesTurret){
             enemy.update(bullets,timePassed);
 
             //DRAW ENEMY    
             drawEnemyTurret(enemy,window);
+
+            if(enemy.getHP()<=0){
+                enemiesTurret.erase(enemiesTurret.begin()+id_enemy);
+                id_enemy--;
+            }
+            id_enemy++;
         }
 
         window.display();
