@@ -8,6 +8,7 @@
 #include "player.hpp"
 #include "enemyShooter.hpp"
 #include "enemyTurret.hpp"
+#include "enemySpawner.hpp"
 
 const int displayX = 1000;
 const int displayY = 1000;
@@ -23,7 +24,7 @@ int main(void){
     //Init Player
     Player player(0,0);
 
-    //Init EnemiesShooter Array
+    //Init EnemyShooter Array
     std::vector<EnemyShooter> enemiesShooter;
     enemiesShooter.emplace_back(0,0);
     enemiesShooter.emplace_back(700,700);
@@ -37,6 +38,13 @@ int main(void){
 
     //Init Bullet Array
     std::vector<Bullet> bullets;
+
+    //Init EnemySpawner Array
+    std::vector<EnemySpawner> enemiesSpawner;
+    enemiesSpawner.emplace_back(400,400);
+
+    //Init EnemySeeking Array
+    std::vector<EnemySeeking> enemiesSeeking;
 
     //Time track and Framerate
     int timePassed;
@@ -71,7 +79,7 @@ int main(void){
             //If the enemy bullet touch the player HitBox: -1HP and destroy the bullet
             if(!bullet.isAlly()){
                 if(player.getShot(bullet)){
-                            bullets.erase(bullets.begin()+idBullet);
+                    bullets.erase(bullets.begin()+idBullet);
                 }
             }
             else{
@@ -111,6 +119,29 @@ int main(void){
                     }
                     idEnemy++;
                 }
+
+                idEnemy=0;
+                for(EnemySeeking &enemy: enemiesSeeking){
+                    if(enemy.getShot(bullet)){
+                        bullets.erase(bullets.begin()+idBullet);
+                        if(enemy.getHP()<=0){
+                            enemiesSeeking.erase(enemiesSeeking.begin()+idEnemy);
+                        }
+                    }
+                    idEnemy++;
+                }
+
+                idEnemy=0;
+                for(EnemySpawner &enemy: enemiesSpawner){
+                    if(enemy.getShot(bullet)){
+                        bullets.erase(bullets.begin()+idBullet);
+                        if(enemy.getHP()<=0){
+                            enemiesSpawner.erase(enemiesSpawner.begin()+idEnemy);
+                        }
+                    }
+                    idEnemy++;
+                }
+
             }
 
             if(bullet.getX()<0|| bullet.getY()<0 || bullet.getX()>displayX|| bullet.getY()>displayY){
@@ -130,7 +161,20 @@ int main(void){
 
         ////EnemyTurret update
         for(EnemyTurret &enemy : enemiesTurret){
-            enemy.update(bullets,currentTime);
+            enemy.update(bullets, currentTime);
+            enemy.draw(window);
+        }
+
+        ////EnemySpawner update
+        for(EnemySpawner &enemy : enemiesSpawner){
+            enemy.update(enemiesSeeking, currentTime);
+            enemy.draw(window);
+        }
+
+        ////EnemySeeking update
+        for(EnemySeeking &enemy : enemiesSeeking){
+            float angleEnemyToPlayer = calcul_angle(enemy.getX(),enemy.getY(),player.getX(),player.getY());
+            enemy.update(angleEnemyToPlayer);
             enemy.draw(window);
         }
 

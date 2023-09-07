@@ -9,12 +9,27 @@ class EnemyShooter{
         EnemyShooter(float x, float y) : x(x), y(y), angle(M_PI+M_PI/2), speed(1), hp(5), shootTimer(0){}
 
         void update(std::vector<Bullet>& bullets, float timePassed, float targetAngle){
-            angle = targetAngle;
+            float angleDiff = targetAngle - angle;
+            if(angleDiff>M_PI){
+                angleDiff-=2*M_PI;
+            }
+            else if(angleDiff<-M_PI){
+                angleDiff+=2*M_PI;
+            }
+
+            angle += angleDiff*0.2;
+
+            if(angle>M_PI){
+                angle-=2*M_PI;
+            }
+            else if(angle<-M_PI){
+                angle+=2*M_PI;
+            }
 
             x+=speed*cos(angle);
             y-=speed*sin(angle);
 
-            //Shoot every N seconde
+            //Shoot every 2 secondes
             shootTimer+=timePassed;
             if(shootTimer>=2){
                 bullets.emplace_back(x,y,angle,3,false,true);
