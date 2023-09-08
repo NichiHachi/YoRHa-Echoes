@@ -2,7 +2,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <cmath>
-#include <chrono>
 
 #include "bullet.hpp"
 #include "player.hpp"
@@ -10,9 +9,10 @@
 #include "enemyTurret.hpp"
 #include "enemySpawner.hpp"
 #include "enemySniper.hpp"
+#include "wall.hpp"
 
-const int displayX = 1100;
-const int displayY = 1100;
+const int displayX = 1000;
+const int displayY = 1000;
 const int bulletRadius = 15;
 
 double calcul_angle(int startX, int startY, int endX, int endY){
@@ -47,9 +47,13 @@ int main(void){
     //Init EnemySeeking Array
     std::vector<EnemySeeking> enemiesSeeking;
 
-    //Init EnemySniper
+    //Init EnemySniper Array
     std::vector<EnemySniper> enemiesSniper;
     enemiesSniper.emplace_back(400,400);
+
+    //Init Wall Array
+    std::vector<Wall> walls;
+    walls.emplace_back(200,300);
 
     //Time track and Framerate
     int timePassed;
@@ -72,7 +76,7 @@ int main(void){
         window.clear(sf::Color::Black);
 
         //PLAYER
-        player.update(bullets,window,currentTime);
+        player.update(bullets,window,currentTime,walls);
         player.draw(window);
 
         //BULLETS 
@@ -168,11 +172,16 @@ int main(void){
             idBullet++;
         }
 
+        //WALL
+        for(Wall &wall : walls){
+            wall.draw(window);
+        }
+
         //ENEMIES
         ////EnemyShooter update
         for(EnemyShooter &enemy : enemiesShooter){
             float angleEnemyToPlayer = calcul_angle(enemy.getX(),enemy.getY(),player.getX(),player.getY());
-            enemy.update(bullets, currentTime, angleEnemyToPlayer);
+            enemy.update(bullets, currentTime, angleEnemyToPlayer, walls);
             enemy.draw(window);
 
             player.getHit(enemy.getX(),enemy.getY());
@@ -205,7 +214,49 @@ int main(void){
 
         ////EnemySniper update
         for(EnemySniper &enemy : enemiesSniper){
-            float angleEnemyToPlayer = calcul_angle(enemy.getX(),enemy.getY(),player.getX(),player.getY());
+            ///////////////////////Mettre dans une fonction
+            float diffX = player.getX()-enemy.getX();
+            float diffY = player.getY()-enemy.getY();
+            float distance = sqrt(diffX*diffX+diffY*diffY);
+            float timeBulletTravel = distance/12*1.5;
+            float playerNewX, playerNewY;
+            float angleNew = -1;
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
+                angleNew = M_PI/4;
+            }
+            else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && sf::Keyboard::isKeyPressed(sf::Keyboard::Q)){
+                angleNew = M_PI*3/4;
+            }
+            else if(sf::Keyboard::isKeyPressed(sf::Keyboard::S) && sf::Keyboard::isKeyPressed(sf::Keyboard::Q)){
+                angleNew = -M_PI*3/4;
+            }
+            else if(sf::Keyboard::isKeyPressed(sf::Keyboard::S) && sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
+                angleNew = -M_PI/4;
+            }
+            else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z)){
+                angleNew = M_PI/2;
+            }
+            else if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
+                angleNew = -M_PI/2;
+            }
+            else if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
+                angleNew = 0;
+            }
+            else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q)){
+                angleNew = M_PI;
+            }
+            
+            if(angleNew==-1){
+                playerNewX = player.getX();
+                playerNewY = player.getY();
+            }
+            else{
+                playerNewX = player.getX()+cos(angleNew)*player.getSpeed()*timeBulletTravel;
+                playerNewY = player.getY()-sin(angleNew)*player.getSpeed()*timeBulletTravel;
+            }
+
+            float angleEnemyToPlayer = calcul_angle(enemy.getX(),enemy.getY(),playerNewX,playerNewY);
+
             enemy.update(bullets, currentTime, angleEnemyToPlayer);
             enemy.draw(window);
 

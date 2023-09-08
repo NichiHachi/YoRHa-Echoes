@@ -3,12 +3,24 @@
 #include <cmath>
 
 #include "bullet.hpp"
+#include "wall.hpp"
 
 class EnemyShooter{
     public:
         EnemyShooter(float x, float y) : x(x), y(y), angle(M_PI+M_PI/2), speed(1), hp(5), shootTimer(0){}
 
-        void update(std::vector<Bullet>& bullets, float timePassed, float targetAngle){
+        void update(std::vector<Bullet>& bullets, float timePassed, float targetAngle, std::vector<Wall> walls){
+            move(targetAngle,walls);
+
+            //Shoot every 2 secondes
+            shootTimer+=timePassed;
+            if(shootTimer>=2){
+                bullets.emplace_back(x,y,angle,3,false,true);
+                shootTimer = 0;
+            }
+        }
+
+        void move(float targetAngle, std::vector<Wall> walls){
             float angleDiff = targetAngle - angle;
             if(angleDiff>M_PI){
                 angleDiff-=2*M_PI;
@@ -26,16 +38,22 @@ class EnemyShooter{
                 angle+=2*M_PI;
             }
 
-            x+=speed*cos(angle);
-            y-=speed*sin(angle);
-
-            //Shoot every 2 secondes
-            shootTimer+=timePassed;
-            if(shootTimer>=2){
-                bullets.emplace_back(x,y,angle,3,false,true);
-                shootTimer = 0;
+            if(walls.size()==0){
+                x+=cos(angle)*speed;
+                y-=sin(angle)*speed;
+            }
+            else{
+                for(Wall wall : walls){
+                    if(!wall.isInWall(x+cos(angle)*speed,y)){
+                        x+=cos(angle)*speed;
+                    }
+                    if(!wall.isInWall(x,y-sin(angle)*speed)){
+                        y-=sin(angle)*speed;
+                    }
+                }
             }
         }
+
         
         void draw(sf::RenderWindow& window){
             int hauteur = 24;

@@ -68,6 +68,6 @@ class EnemyTurret{
         }
 
     private:
-        float x,y,angle,shootTimer,targetAngle,timeBetweenShot;
+        float x,y,angle,shootTimer,targetAngle;
         int hp;
 };

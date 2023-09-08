@@ -3,34 +3,66 @@
 #include <cmath>
 
 #include "bullet.hpp"
+#include "wall.hpp"
 
 class Player{
     public:
         Player(float x, float y) : x(x),y(y),speed(5),hp(10),angle(0),shootTimer(0), hitTimer(2){}
-        void update(std::vector<Bullet>& bullets,sf::RenderWindow& window,float timePassed){
-            move(window);
+        void update(std::vector<Bullet>& bullets,sf::RenderWindow& window,float timePassed, std::vector<Wall> walls){
+            move(window,walls);
+
+            sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+            angle = atan2(y-mousePosition.y,mousePosition.x-x);
 
             shootTimer+=timePassed;
             hitTimer+=timePassed;
 
             shoot(bullets);
         }
+        void move(sf::RenderWindow& window, std::vector<Wall> walls){
+            float angleMove = -1;
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
+                angleMove = M_PI/4;
+            }
+            else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && sf::Keyboard::isKeyPressed(sf::Keyboard::Q)){
+                angleMove = M_PI*3/4;
+            }
+            else if(sf::Keyboard::isKeyPressed(sf::Keyboard::S) && sf::Keyboard::isKeyPressed(sf::Keyboard::Q)){
+                angleMove = -M_PI*3/4;
+            }
+            else if(sf::Keyboard::isKeyPressed(sf::Keyboard::S) && sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
+                angleMove = -M_PI/4;
+            }
+            else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z)){
+                angleMove = M_PI/2;
+            }
+            else if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
+                angleMove = -M_PI/2;
+            }
+            else if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
+                angleMove = 0;
+            }
+            else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q)){
+                angleMove = M_PI;
+            }
 
-        void move(sf::RenderWindow& window){
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z)){
-                y -= speed;
+            if(angleMove!=-1){
+                if(walls.size()==0){
+                    x+=cos(angleMove)*speed;
+                    y-=sin(angleMove)*speed;
+                }
+                else{
+                    for(Wall wall : walls){
+                        if(!wall.isInWall(x+cos(angleMove)*speed,y)){
+                            x+=cos(angleMove)*speed;
+                        }
+                        if(!wall.isInWall(x,y-sin(angleMove)*speed)){
+                            y-=sin(angleMove)*speed;
+                        }
+                    }
+                }
             }
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
-                y += speed;
-            }
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
-                x += speed;
-            }
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q)){
-                x -= speed;
-            }
-            sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-            angle = atan2(y-mousePosition.y,mousePosition.x-x);
+
         }
 
         void shoot(std::vector<Bullet>& bullets){
@@ -138,6 +170,10 @@ class Player{
 
         float getAngle() const{
             return angle;
+        }
+
+        float getSpeed() const{
+            return speed;
         }
 
         int getHP() const{

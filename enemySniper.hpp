@@ -18,7 +18,7 @@ class EnemySniper{
                 angleDiff+=2*M_PI;
             }
 
-            angle += angleDiff*0.2;
+            angle += angleDiff*0.1;
 
             if(angle>M_PI){
                 angle-=2*M_PI;
@@ -33,7 +33,7 @@ class EnemySniper{
             //Shoot every 3.5 secondes
             shootTimer+=timePassed;
             if(shootTimer>=3.5){
-                bullets.emplace_back(x,y,angle,9,false,false);
+                bullets.emplace_back(x,y,angle,12,false,false);
                 shootTimer = 0;
             }
         }
