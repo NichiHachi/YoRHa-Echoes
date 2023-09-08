@@ -10,8 +10,8 @@
 #include "enemyTurret.hpp"
 #include "enemySpawner.hpp"
 
-const int displayX = 1000;
-const int displayY = 1000;
+const int displayX = 1100;
+const int displayY = 1100;
 const int bulletRadius = 15;
 
 double calcul_angle(int startX, int startY, int endX, int endY){
@@ -78,7 +78,7 @@ int main(void){
 
             //If the enemy bullet touch the player HitBox: -1HP and destroy the bullet
             if(!bullet.isAlly()){
-                if(player.getShot(bullet)){
+                if(player.getHit(bullet.getX(),bullet.getY())){
                     bullets.erase(bullets.begin()+idBullet);
                 }
             }
@@ -97,7 +97,7 @@ int main(void){
                     idBullet2++;
                 }
 
-                //If the ally bullet touch the enemyShooter -> -1HP and look if he died
+                //If the ally bullet touch the Enemy -> -1HP and look if he died
                 idEnemy = 0;
                 for(EnemyShooter &enemy: enemiesShooter){
                     if(enemy.getShot(bullet)){
@@ -144,6 +144,7 @@ int main(void){
 
             }
 
+            //If the bullet get out of the window -> destroy it
             if(bullet.getX()<0|| bullet.getY()<0 || bullet.getX()>displayX|| bullet.getY()>displayY){
                 bullets.erase(bullets.begin()+idBullet);
             }
@@ -157,18 +158,24 @@ int main(void){
             float angleEnemyToPlayer = calcul_angle(enemy.getX(),enemy.getY(),player.getX(),player.getY());
             enemy.update(bullets, currentTime, angleEnemyToPlayer);
             enemy.draw(window);
+
+            player.getHit(enemy.getX(),enemy.getY());
         }
 
         ////EnemyTurret update
         for(EnemyTurret &enemy : enemiesTurret){
             enemy.update(bullets, currentTime);
             enemy.draw(window);
+
+            player.getHit(enemy.getX(),enemy.getY());
         }
 
         ////EnemySpawner update
         for(EnemySpawner &enemy : enemiesSpawner){
             enemy.update(enemiesSeeking, currentTime);
             enemy.draw(window);
+
+            player.getHit(enemy.getX(),enemy.getY());
         }
 
         ////EnemySeeking update
@@ -176,6 +183,8 @@ int main(void){
             float angleEnemyToPlayer = calcul_angle(enemy.getX(),enemy.getY(),player.getX(),player.getY());
             enemy.update(angleEnemyToPlayer);
             enemy.draw(window);
+
+            player.getHit(enemy.getX(),enemy.getY());
         }
 
         player.drawHealth(window);

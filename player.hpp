@@ -4,14 +4,15 @@
 
 #include "bullet.hpp"
 
-
 class Player{
     public:
-        Player(float x, float y) : x(x),y(y),speed(5),hp(10),angle(0),shootTimer(0){}
+        Player(float x, float y) : x(x),y(y),speed(5),hp(10),angle(0),shootTimer(0), hitTimer(2){}
         void update(std::vector<Bullet>& bullets,sf::RenderWindow& window,float timePassed){
             move(window);
 
             shootTimer+=timePassed;
+            hitTimer+=timePassed;
+
             shoot(bullets);
         }
 
@@ -41,12 +42,15 @@ class Player{
             }
         }
 
-        bool getShot(Bullet bullet){
-            int diffX = x-bullet.getX();
-            int diffY = y-bullet.getY();
-            //If the border of the bullet touch the player (15+20/2 -> bullet radius + hit box player)
-            if(std::sqrt(diffX*diffX+diffY*diffY)<25){
-                hp--;
+        bool getHit(int objectX, int objectY){
+            int diffX = x-objectX;
+            int diffY = y-objectY;
+            //If the border of the object (enemy or bullet) touch the player (15+15 -> object hitbox + player hitbox)
+            if(std::sqrt(diffX*diffX+diffY*diffY)<=30){
+                if(hitTimer>2){
+                    hp--;
+                    hitTimer = 0;
+                }
                 return true;
             }
             return false;
@@ -102,13 +106,27 @@ class Player{
 
         void drawHealth(sf::RenderWindow& window){
             sf::CircleShape circle;
-            circle.setRadius(15);
+            circle.setRadius(10);
             circle.setFillColor(sf::Color::Red);
+
+            sf::VertexArray quad(sf::Quads, 4);
+            quad[0].color = sf::Color::Red;
+            quad[1].color = sf::Color::Red;
+            quad[2].color = sf::Color::Red;
+            quad[3].color = sf::Color::Red;
             for(int i=0;i<hp;i++){
-                circle.setPosition(15+35*i,15);
+                circle.setPosition(10*cos(M_PI*3/4)+40*i+20,10*sin(M_PI*3/4)+10);
                 window.draw(circle);
+                circle.setPosition(10*cos(M_PI/4)+40*i+20,10*sin(M_PI/4)+10);
+                window.draw(circle);
+
+                quad[0].position = sf::Vector2f(40*i+30,21);
+                quad[1].position = sf::Vector2f(40*i+44,35);
+                quad[2].position = sf::Vector2f(40*i+30,49);
+                quad[3].position = sf::Vector2f(40*i+16,35);
+                window.draw(quad);
+            }
         }
-}
 
         int getX() const{
             return x;
@@ -126,12 +144,8 @@ class Player{
             return hp;
         }
 
-        void getShot(){
-            hp--;
-        }
-
     private:
-        float x,y,speed,shootTimer;
+        float x,y,speed,shootTimer,hitTimer;
         int hp;
         double angle;
 };
