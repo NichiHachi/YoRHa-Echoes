@@ -9,6 +9,7 @@
 #include "enemyShooter.hpp"
 #include "enemyTurret.hpp"
 #include "enemySpawner.hpp"
+#include "enemySniper.hpp"
 
 const int displayX = 1100;
 const int displayY = 1100;
@@ -45,6 +46,10 @@ int main(void){
 
     //Init EnemySeeking Array
     std::vector<EnemySeeking> enemiesSeeking;
+
+    //Init EnemySniper
+    std::vector<EnemySniper> enemiesSniper;
+    enemiesSniper.emplace_back(400,400);
 
     //Time track and Framerate
     int timePassed;
@@ -142,6 +147,17 @@ int main(void){
                     idEnemy++;
                 }
 
+                idEnemy=0;
+                for(EnemySniper &enemy: enemiesSniper){
+                    if(enemy.getShot(bullet)){
+                        bullets.erase(bullets.begin()+idBullet);
+                        if(enemy.getHP()<=0){
+                            enemiesSniper.erase(enemiesSniper.begin()+idEnemy);
+                        }
+                    }
+                    idEnemy++;
+                }
+
             }
 
             //If the bullet get out of the window -> destroy it
@@ -182,6 +198,15 @@ int main(void){
         for(EnemySeeking &enemy : enemiesSeeking){
             float angleEnemyToPlayer = calcul_angle(enemy.getX(),enemy.getY(),player.getX(),player.getY());
             enemy.update(angleEnemyToPlayer);
+            enemy.draw(window);
+
+            player.getHit(enemy.getX(),enemy.getY());
+        }
+
+        ////EnemySniper update
+        for(EnemySniper &enemy : enemiesSniper){
+            float angleEnemyToPlayer = calcul_angle(enemy.getX(),enemy.getY(),player.getX(),player.getY());
+            enemy.update(bullets, currentTime, angleEnemyToPlayer);
             enemy.draw(window);
 
             player.getHit(enemy.getX(),enemy.getY());

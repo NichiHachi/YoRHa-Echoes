@@ -5,7 +5,7 @@
 
 class EnemySeeking{
     public:
-        EnemySeeking(float x, float y, float angle): x(x), y(y), speed(5.2), angle(angle), hp(4){}
+        EnemySeeking(float x, float y, float angle): x(x), y(y), speed(5.2), angle(angle), hp(3){}
         void update(float targetAngle){
             float angleDiff = targetAngle - angle;
             if(angleDiff>M_PI){

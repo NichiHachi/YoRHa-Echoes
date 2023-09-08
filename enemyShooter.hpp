@@ -114,6 +114,6 @@ class EnemyShooter{
         }
 
     private:
-        float x,y,speed,angle,shootTimer,timeBetweenShot;
+        float x,y,speed,angle,shootTimer;
         int hp;
 };
