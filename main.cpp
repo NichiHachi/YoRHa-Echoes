@@ -53,7 +53,10 @@ int main(void){
 
     //Init Wall Array
     std::vector<Wall> walls;
+    walls.emplace_back(200,350);
     walls.emplace_back(200,300);
+    walls.emplace_back(250,300);
+    walls.emplace_back(300,300);
 
     //Time track and Framerate
     int timePassed;
@@ -169,6 +172,22 @@ int main(void){
                 bullets.erase(bullets.begin()+idBullet);
             }
 
+            for(Wall &wall : walls){
+                if(wall.isInWall(bullet.getX()+bulletRadius,bullet.getY()+bulletRadius)){
+                    bullets.erase(bullets.begin()+idBullet);
+                }
+                else if(wall.isInWall(bullet.getX()-bulletRadius,bullet.getY()+bulletRadius)){
+                    bullets.erase(bullets.begin()+idBullet);
+                }
+                else if(wall.isInWall(bullet.getX()-bulletRadius,bullet.getY()-bulletRadius)){
+                    bullets.erase(bullets.begin()+idBullet);
+                }
+                else if(wall.isInWall(bullet.getX()+bulletRadius,bullet.getY()-bulletRadius)){
+                    bullets.erase(bullets.begin()+idBullet);
+                }
+            }
+            if(bullet.getX())
+
             idBullet++;
         }
 
@@ -206,7 +225,7 @@ int main(void){
         ////EnemySeeking update
         for(EnemySeeking &enemy : enemiesSeeking){
             float angleEnemyToPlayer = calcul_angle(enemy.getX(),enemy.getY(),player.getX(),player.getY());
-            enemy.update(angleEnemyToPlayer);
+            enemy.update(angleEnemyToPlayer, walls);
             enemy.draw(window);
 
             player.getHit(enemy.getX(),enemy.getY());
@@ -257,7 +276,7 @@ int main(void){
 
             float angleEnemyToPlayer = calcul_angle(enemy.getX(),enemy.getY(),playerNewX,playerNewY);
 
-            enemy.update(bullets, currentTime, angleEnemyToPlayer);
+            enemy.update(bullets, currentTime, angleEnemyToPlayer,walls);
             enemy.draw(window);
 
             player.getHit(enemy.getX(),enemy.getY());

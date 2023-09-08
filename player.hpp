@@ -47,20 +47,37 @@ class Player{
             }
 
             if(angleMove!=-1){
-                if(walls.size()==0){
-                    x+=cos(angleMove)*speed;
-                    y-=sin(angleMove)*speed;
-                }
-                else{
+                bool xInWall = false;
+                bool yInWall = false;
+                if(walls.size()!=0){
                     for(Wall wall : walls){
-                        if(!wall.isInWall(x+cos(angleMove)*speed,y)){
-                            x+=cos(angleMove)*speed;
+                        if(wall.isInWall(x+cos(angleMove)*speed,y)){
+                            xInWall = true;
                         }
-                        if(!wall.isInWall(x,y-sin(angleMove)*speed)){
-                            y-=sin(angleMove)*speed;
+                        if(wall.isInWall(x,y-sin(angleMove)*speed)){
+                            yInWall = true;
                         }
                     }
                 }
+                if(!xInWall){
+                    x+=cos(angleMove)*speed;
+                }
+                if(!yInWall){
+                    y-=sin(angleMove)*speed;
+                }
+            }
+
+            if(x<0){
+                x=0;
+            }
+            else if(x>1000){
+                x=1000;
+            }
+            if(y<0){
+                y=0;
+            }
+            else if(y>1000){
+                y=1000;
             }
 
         }

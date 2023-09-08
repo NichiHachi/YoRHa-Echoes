@@ -38,19 +38,24 @@ class EnemyShooter{
                 angle+=2*M_PI;
             }
 
-            if(walls.size()==0){
-                x+=cos(angle)*speed;
-                y-=sin(angle)*speed;
-            }
-            else{
+            
+            bool xInWall = false;
+            bool yInWall = false;
+            if(walls.size()!=0){
                 for(Wall wall : walls){
-                    if(!wall.isInWall(x+cos(angle)*speed,y)){
-                        x+=cos(angle)*speed;
+                    if(wall.isInWall(x+cos(angle)*speed,y)){
+                        xInWall = true;
                     }
-                    if(!wall.isInWall(x,y-sin(angle)*speed)){
-                        y-=sin(angle)*speed;
+                    if(wall.isInWall(x,y-sin(angle)*speed)){
+                        yInWall = true;
                     }
                 }
+            }
+            if(!xInWall){
+                x+=cos(angle)*speed;
+            }
+            if(!yInWall){
+                y-=sin(angle)*speed;
             }
         }
 

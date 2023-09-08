@@ -9,7 +9,18 @@ class EnemySniper{
     public:
         EnemySniper(float x, float y) : x(x), y(y), angle(M_PI+M_PI/2), speed(0.4), hp(4), shootTimer(0){}
 
-        void update(std::vector<Bullet>& bullets, float timePassed, float targetAngle){
+        void update(std::vector<Bullet>& bullets, float timePassed, float targetAngle, std::vector<Wall> walls){
+            move(targetAngle, walls);
+
+            //Shoot every 3.5 secondes
+            shootTimer+=timePassed;
+            if(shootTimer>=3.5){
+                bullets.emplace_back(x+cos(angle)*15,y+sin(angle)*15,angle,12,false,false);
+                shootTimer = 0;
+            }
+        }
+
+        void move(float targetAngle, std::vector<Wall> walls){
             float angleDiff = targetAngle - angle;
             if(angleDiff>M_PI){
                 angleDiff-=2*M_PI;
@@ -26,15 +37,37 @@ class EnemySniper{
             else if(angle<-M_PI){
                 angle+=2*M_PI;
             }
-            
-            x-=speed*cos(angle);
-            y+=speed*sin(angle);
 
-            //Shoot every 3.5 secondes
-            shootTimer+=timePassed;
-            if(shootTimer>=3.5){
-                bullets.emplace_back(x,y,angle,12,false,false);
-                shootTimer = 0;
+            bool xInWall = false;
+            bool yInWall = false;
+            if(walls.size()!=0){
+                for(Wall wall : walls){
+                    if(wall.isInWall(x-cos(angle)*speed,y)){
+                        xInWall = true;
+                    }
+                    if(wall.isInWall(x,y+sin(angle)*speed)){
+                        yInWall = true;
+                    }
+                }
+            }
+            if(!xInWall){
+                x-=cos(angle)*speed;
+            }
+            if(!yInWall){
+                y+=sin(angle)*speed;
+            }
+
+            if(x<0){
+                x=0;
+            }
+            else if(x>1000){
+                x=1000;
+            }
+            if(y<0){
+                y=0;
+            }
+            else if(y>1000){
+                y=1000;
             }
         }
         

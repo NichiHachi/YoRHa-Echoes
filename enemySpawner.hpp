@@ -6,7 +6,11 @@
 class EnemySeeking{
     public:
         EnemySeeking(float x, float y, float angle): x(x), y(y), speed(5.2), angle(angle), hp(3){}
-        void update(float targetAngle){
+        void update(float targetAngle, std::vector<Wall> walls){
+            move(targetAngle, walls);
+        }
+
+        void move(float targetAngle, std::vector<Wall> walls){
             float angleDiff = targetAngle - angle;
             if(angleDiff>M_PI){
                 angleDiff-=2*M_PI;
@@ -24,8 +28,37 @@ class EnemySeeking{
                 angle+=2*M_PI;
             }
 
-            x+=speed*cos(angle);
-            y-=speed*sin(angle);
+            bool xInWall = false;
+            bool yInWall = false;
+            if(walls.size()!=0){
+                for(Wall wall : walls){
+                    if(wall.isInWall(x+cos(angle)*speed,y)){
+                        xInWall = true;
+                    }
+                    if(wall.isInWall(x,y-sin(angle)*speed)){
+                        yInWall = true;
+                    }
+                }
+            }
+            if(!xInWall){
+                x+=cos(angle)*speed;
+            }
+            if(!yInWall){
+                y-=sin(angle)*speed;
+            }
+
+            if(x<0){
+                x=0;
+            }
+            else if(x>1000){
+                x=1000;
+            }
+            if(y<0){
+                y=0;
+            }
+            else if(y>1000){
+                y=1000;
+            }
         }
 
         void draw(sf::RenderWindow& window){
@@ -93,17 +126,17 @@ class EnemySpawner{
             quad[2].color = enemiesColor;
             quad[3].color = enemiesColor;
 
-            quad[0].position = sf::Vector2f(x+20,y+10);
-            quad[1].position = sf::Vector2f(x-20,y+10);
-            quad[2].position = sf::Vector2f(x-20,y-10);
-            quad[3].position = sf::Vector2f(x+20,y-10);
+            quad[0].position = sf::Vector2f(x+25,y+7);
+            quad[1].position = sf::Vector2f(x-25,y+7);
+            quad[2].position = sf::Vector2f(x-25,y-7);
+            quad[3].position = sf::Vector2f(x+25,y-7);
 
             window.draw(quad);
 
-            quad[0].position = sf::Vector2f(x+10,y+20);
-            quad[1].position = sf::Vector2f(x-10,y+20);
-            quad[2].position = sf::Vector2f(x-10,y-20);
-            quad[3].position = sf::Vector2f(x+10,y-20);
+            quad[0].position = sf::Vector2f(x+7,y+25);
+            quad[1].position = sf::Vector2f(x-7,y+25);
+            quad[2].position = sf::Vector2f(x-7,y-25);
+            quad[3].position = sf::Vector2f(x+7,y-25);
 
             window.draw(quad);
         }
