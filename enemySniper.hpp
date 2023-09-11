@@ -57,17 +57,17 @@ class EnemySniper{
                 y+=sin(angle)*speed;
             }
 
-            if(x<0){
-                x=0;
+            if(x<19){
+                x=19;
             }
-            else if(x>1000){
-                x=1000;
+            else if(x>981){
+                x=981;
             }
-            if(y<0){
-                y=0;
+            if(y<19){
+                y=19;
             }
-            else if(y>1000){
-                y=1000;
+            else if(y>981){
+                y=981;
             }
         }
         

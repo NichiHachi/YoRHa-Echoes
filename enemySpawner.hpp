@@ -47,17 +47,17 @@ class EnemySeeking{
                 y-=sin(angle)*speed;
             }
 
-            if(x<0){
-                x=0;
+            if(x<15){
+                x=15;
             }
-            else if(x>1000){
-                x=1000;
+            else if(x>985){
+                x=985;
             }
-            if(y<0){
-                y=0;
+            if(y<15){
+                y=15;
             }
-            else if(y>1000){
-                y=1000;
+            else if(y>985){
+                y=985;
             }
         }
 

@@ -6,11 +6,12 @@
 
 #include "bullet.hpp"
 #include "player.hpp"
+#include "wall.hpp"
 #include "enemyShooter.hpp"
 #include "enemyTurret.hpp"
 #include "enemySpawner.hpp"
 #include "enemySniper.hpp"
-#include "wall.hpp"
+#include "enemyCharger.hpp"
 
 const int displayX = 1000;
 const int displayY = 1000;
@@ -96,6 +97,10 @@ int main(void){
     std::vector<EnemySniper> enemiesSniper;
     enemiesSniper.emplace_back(400,400);
 
+    //Init EnemyCharger Array
+    std::vector<EnemyCharger> enemiesCharger;
+    enemiesCharger.emplace_back(450,300);
+
     //Init Wall Array
     std::vector<Wall> walls;
     walls.emplace_back(200,350);
@@ -125,6 +130,11 @@ int main(void){
 
         window.clear(sf::Color::Black);
 
+        //Warning Zone from Charger Enemies (The last layer)
+        for(EnemyCharger enemy : enemiesCharger){
+            enemy.drawWarningZone(window);
+        }
+
         //PLAYER
         player.update(bullets,window,currentTime,walls);
         player.draw(window);
@@ -134,7 +144,9 @@ int main(void){
         ////We use a set because if a ally bullet touch a enemy bullet, they will be stored 2 times in the array (ie we prevent that to happen and having memory problem)
         std::set<int> bulletsToDelete;
         for(Bullet &bullet : bullets){
+
             bullet.update();
+
             bullet.draw(window);
 
             //ENEMY'S BULLET
@@ -212,6 +224,17 @@ int main(void){
                         bulletsToDelete.insert(idBullet);
                         if(enemy.getHP()<=0){
                             enemiesSniper.erase(enemiesSniper.begin()+idEnemy);
+                        }
+                        break;
+                    }
+                    idEnemy++;
+                }
+                idEnemy=0;
+                for(EnemyCharger &enemy: enemiesCharger){
+                    if(enemy.getShot(bullet)){
+                        bulletsToDelete.insert(idBullet);
+                        if(enemy.getHP()<=0){
+                            enemiesCharger.erase(enemiesCharger.begin()+idEnemy);
                         }
                         break;
                     }
@@ -298,6 +321,15 @@ int main(void){
         for(EnemySniper &enemy : enemiesSniper){
             double angleEnemyToPlayer = angle_shot_predict(player,enemy.getX(),enemy.getY());
             enemy.update(bullets, currentTime, angleEnemyToPlayer,walls);
+            enemy.draw(window);
+
+            player.getHit(enemy.getX(),enemy.getY());
+        }
+
+        //EnemyCharger update
+        for(EnemyCharger &enemy : enemiesCharger){
+            float angleEnemyToPlayer = calcul_angle(enemy.getX(),enemy.getY(),player.getX(),player.getY());
+            enemy.update(currentTime,angleEnemyToPlayer, walls);
             enemy.draw(window);
 
             player.getHit(enemy.getX(),enemy.getY());
