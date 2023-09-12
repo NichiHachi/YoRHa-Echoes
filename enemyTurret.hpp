@@ -25,7 +25,7 @@ class EnemyTurret{
 
 
         void draw(sf::RenderWindow& window){
-            sf::Color enemiesColor(200,200,200);
+            sf::Color enemiesColor(100,100,100);
             sf::VertexArray enemy_part(sf::Triangles,3);
             int radius = 30;
             enemy_part[0].color = enemiesColor;

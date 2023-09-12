@@ -16,6 +16,7 @@
 const int displayX = 1000;
 const int displayY = 1000;
 const int bulletRadius = 15;
+const sf::Color backgroundColor(210,200,180);
 
 double calcul_angle(int startX, int startY, int endX, int endY){
     return atan2(startY-endY,endX-startX);
@@ -128,7 +129,7 @@ int main(void){
             }
         }
 
-        window.clear(sf::Color::Black);
+        window.clear(backgroundColor);
 
         //Warning Zone from Charger Enemies (The last layer)
         for(EnemyCharger enemy : enemiesCharger){
@@ -143,131 +144,139 @@ int main(void){
         idBullet = 0;
         ////We use a set because if a ally bullet touch a enemy bullet, they will be stored 2 times in the array (ie we prevent that to happen and having memory problem)
         std::set<int> bulletsToDelete;
-        for(Bullet &bullet : bullets){
+        while(idBullet < bullets.size()){
+            bullets[idBullet].update();
+            bullets[idBullet].draw(window);
 
-            bullet.update();
-
-            bullet.draw(window);
+            bool bulletDestroyed = false;
 
             //ENEMY'S BULLET
             ////If the enemy bullet touch the player HitBox: -1HP and destroy the bullet
-            if(!bullet.isAlly()){
-                if(player.getHit(bullet.getX(),bullet.getY())){
+            if(!bullets[idBullet].isAlly()){
+                if(player.getHit(bullets[idBullet].getX(),bullets[idBullet].getY())){
                     bulletsToDelete.insert(idBullet);
+                    bulletDestroyed = true;
                 }
             }
+
             //ALLY'S BULLET
             else{
                 ////If the ally bullet touch a enemy bullet that is destructible -> destroy both bullets
-                int idBullet2=0;
-                for(Bullet &bullet_collision : bullets){
-                    if(!bullet_collision.isAlly() && bullet_collision.isDestructible()){
-                        int diffX = bullet_collision.getX()-bullet.getX();
-                        int diffY = bullet_collision.getY()-bullet.getY();
+                int idBulletEnemy = 0;
+                while(idBulletEnemy < bullets.size() && !bulletDestroyed){
+                    if(!bullets[idBulletEnemy].isAlly() && bullets[idBulletEnemy].isDestructible()){
+                        int diffX = bullets[idBulletEnemy].getX()-bullets[idBullet].getX();
+                        int diffY = bullets[idBulletEnemy].getY()-bullets[idBullet].getY();
                         if(diffX>-bulletRadius && diffX<bulletRadius && diffY>-bulletRadius && diffY<bulletRadius){
+                            bulletsToDelete.insert(idBulletEnemy);
                             bulletsToDelete.insert(idBullet);
-                            bulletsToDelete.insert(idBullet2);
-                            break;
+                            bulletDestroyed = true;
                         }
                     }
-                    idBullet2++;
+                    idBulletEnemy++;
                 }
 
-                ////If the ally bullet touch the enemy -> He loose 1 HP and if he has 0 HP (ie if he died) -> Erase him from the array
+                ////If the ally bullet touch the enemy -> He loose 1 HP and if he has 0 HP (ie if he died) -> Erase him from his array
+                //////Enemy Shooter
                 idEnemy = 0;
-                for(EnemyShooter &enemy: enemiesShooter){
-                    if(enemy.getShot(bullet)){
+                while(idEnemy < enemiesShooter.size() && !bulletDestroyed){
+                    if(enemiesShooter[idEnemy].getShot(bullets[idBullet])){
                         bulletsToDelete.insert(idBullet);
-                        if(enemy.getHP()<=0){
+                        bulletDestroyed = true;
+                        if(enemiesShooter[idEnemy].getHP()<=0){
                             enemiesShooter.erase(enemiesShooter.begin()+idEnemy);
                         }
-                        break;
                     }
                     idEnemy++;
                 }
+                //////Enemy Shooter
                 idEnemy=0;
-                for(EnemyTurret &enemy: enemiesTurret){
-                    if(enemy.getShot(bullet)){
+                while(idEnemy < enemiesTurret.size() && !bulletDestroyed){
+                    if(enemiesTurret[idEnemy].getShot(bullets[idBullet])){
                         bulletsToDelete.insert(idBullet);
-                        if(enemy.getHP()<=0){
+                        bulletDestroyed = true;
+                        if(enemiesTurret[idEnemy].getHP()<=0){
                             enemiesTurret.erase(enemiesTurret.begin()+idEnemy);
                         }
-                        break;
                     }
                     idEnemy++;
                 }
+                //////Enemy Turret
                 idEnemy=0;
-                for(EnemySeeking &enemy: enemiesSeeking){
-                    if(enemy.getShot(bullet)){
+                while(idEnemy < enemiesSeeking.size() && !bulletDestroyed){
+                    if(enemiesSeeking[idEnemy].getShot(bullets[idBullet])){
                         bulletsToDelete.insert(idBullet);
-                        if(enemy.getHP()<=0){
+                        bulletDestroyed = true;
+                        if(enemiesSeeking[idEnemy].getHP()<=0){
                             enemiesSeeking.erase(enemiesSeeking.begin()+idEnemy);
                         }
-                        break;
                     }
                     idEnemy++;
                 }
+                //////Enemy Spawner
                 idEnemy=0;
-                for(EnemySpawner &enemy: enemiesSpawner){
-                    if(enemy.getShot(bullet)){
+                while(idEnemy < enemiesSpawner.size() && !bulletDestroyed){
+                    if(enemiesSpawner[idEnemy].getShot(bullets[idBullet])){
                         bulletsToDelete.insert(idBullet);
-                        if(enemy.getHP()<=0){
+                        bulletDestroyed = true;
+                        if(enemiesSpawner[idEnemy].getHP()<=0){
                             enemiesSpawner.erase(enemiesSpawner.begin()+idEnemy);
                         }
-                        break;
                     }
                     idEnemy++;
                 }
+                //////Enemy Sniper
                 idEnemy=0;
-                for(EnemySniper &enemy: enemiesSniper){
-                    if(enemy.getShot(bullet)){
+                while(idEnemy < enemiesSniper.size() && !bulletDestroyed){
+                    if(enemiesSniper[idEnemy].getShot(bullets[idBullet])){
                         bulletsToDelete.insert(idBullet);
-                        if(enemy.getHP()<=0){
+                        bulletDestroyed = true;
+                        if(enemiesSniper[idEnemy].getHP()<=0){
                             enemiesSniper.erase(enemiesSniper.begin()+idEnemy);
                         }
-                        break;
                     }
                     idEnemy++;
                 }
+                //////Enemy Charger
                 idEnemy=0;
-                for(EnemyCharger &enemy: enemiesCharger){
-                    if(enemy.getShot(bullet)){
+                while(idEnemy < enemiesCharger.size() && !bulletDestroyed){
+                    if(enemiesCharger[idEnemy].getShot(bullets[idBullet])){
                         bulletsToDelete.insert(idBullet);
-                        if(enemy.getHP()<=0){
+                        bulletDestroyed = true;
+                        if(enemiesCharger[idEnemy].getHP()<=0){
                             enemiesCharger.erase(enemiesCharger.begin()+idEnemy);
                         }
-                        break;
                     }
                     idEnemy++;
                 }
-
             }
 
-            //If any bullet get out of the window -> destroy it
-            if(bullet.getX()<0|| bullet.getY()<0 || bullet.getX()>displayX|| bullet.getY()>displayY){
+            ////If any bullet get out of the window -> destroy it
+            if(!bulletDestroyed && (bullets[idBullet].getX()<0 || bullets[idBullet].getY()<0 || bullets[idBullet].getX()>displayX || bullets[idBullet].getY()>displayY)){
                     bulletsToDelete.insert(idBullet);
             }
 
-            //If any bullet is in a wall -> destroy it
-            for(Wall &wall : walls){
-                if(wall.isInWall(bullet.getX()+bulletRadius,bullet.getY()+bulletRadius)){
+            ////If any bullet is in a wall -> destroy it
+            int idWall = 0;
+            while(idWall < walls.size()&& !bulletDestroyed){
+                if(walls[idWall].isInWall(bullets[idBullet].getX()+bulletRadius,bullets[idBullet].getY()+bulletRadius)){
                     bulletsToDelete.insert(idBullet);
-                    break;
+                    bulletDestroyed = true;
                 }
-                else if(wall.isInWall(bullet.getX()-bulletRadius,bullet.getY()+bulletRadius)){
+                else if(walls[idWall].isInWall(bullets[idBullet].getX()-bulletRadius,bullets[idBullet].getY()+bulletRadius)){
                     bulletsToDelete.insert(idBullet);
-                    break;
+                    bulletDestroyed = true;
                 }
-                else if(wall.isInWall(bullet.getX()-bulletRadius,bullet.getY()-bulletRadius)){
+                else if(walls[idWall].isInWall(bullets[idBullet].getX()-bulletRadius,bullets[idBullet].getY()-bulletRadius)){
                     bulletsToDelete.insert(idBullet);
-                    break;
+                    bulletDestroyed = true;
                 }
-                else if(wall.isInWall(bullet.getX()+bulletRadius,bullet.getY()-bulletRadius)){
+                else if(walls[idWall].isInWall(bullets[idBullet].getX()+bulletRadius,bullets[idBullet].getY()-bulletRadius)){
                     bulletsToDelete.insert(idBullet);
-                    break;
+                    bulletDestroyed = true;
                 }
+                idWall ++;
             }
-
             idBullet++;
         }
 

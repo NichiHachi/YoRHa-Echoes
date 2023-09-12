@@ -81,7 +81,7 @@ class EnemyCharger{
         void draw(sf::RenderWindow& window){
             int rayon = 30;
 
-            sf::Color enemiesColor(200,200,200);
+            sf::Color enemiesColor(100,100,100);
             sf::VertexArray side(sf::Triangles,3);
 
             side[0].color = enemiesColor;

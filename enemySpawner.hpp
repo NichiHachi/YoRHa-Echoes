@@ -62,7 +62,7 @@ class EnemySeeking{
         }
 
         void draw(sf::RenderWindow& window){
-            sf::Color enemiesColor(200,200,200);
+            sf::Color enemiesColor(100,100,100);
             sf::VertexArray enemy(sf::Triangles,3);
 
             enemy[0].position = sf::Vector2f(x+cos(angle)*15, y-sin(angle)*15);
@@ -118,7 +118,7 @@ class EnemySpawner{
         }
 
         void draw(sf::RenderWindow& window){
-            sf::Color enemiesColor(200,200,200);
+            sf::Color enemiesColor(100,100,100);
             sf::VertexArray quad(sf::Quads, 4);
             
             quad[0].color = enemiesColor;

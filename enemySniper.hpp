@@ -74,7 +74,7 @@ class EnemySniper{
         void draw(sf::RenderWindow& window){
             int hauteur = 50;
             int rayon = 19;
-            sf::Color enemiesColor(200,200,200);
+            sf::Color enemiesColor(100,100,100);
             sf::VertexArray enemyUp(sf::Triangles,3);
             sf::VertexArray enemyDown(sf::Triangles,3);
 

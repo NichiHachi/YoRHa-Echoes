@@ -63,7 +63,7 @@ class EnemyShooter{
         void draw(sf::RenderWindow& window){
             int hauteur = 24;
             int rayon = 19;
-            sf::Color enemiesColor(200,200,200);
+            sf::Color enemiesColor(100,100,100);
             sf::VertexArray enemy_left_part(sf::Triangles,3);
             sf::VertexArray enemy_right_part(sf::Triangles,3);
             float angle_point_triangle_1 = atan2(hauteur,rayon);

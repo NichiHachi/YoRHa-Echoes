@@ -30,7 +30,7 @@ class Bullet{
         else{
             int bulletRadius = 15;
             sf::Color enemiesBulletInvinsibleColor(255,102,51);
-            sf::Color enemiesBulletDestructibleColor(155,155,155);
+            sf::Color enemiesBulletDestructibleColor(70,11,102);
             sf::CircleShape circle;
             circle.setRadius(bulletRadius);
             if(Destructible){
