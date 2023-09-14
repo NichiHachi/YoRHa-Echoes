@@ -4,19 +4,19 @@
 #include <cmath>
 #include <set>
 
-#include "bullet.hpp"
-#include "player.hpp"
-#include "wall.hpp"
-#include "enemyShooter.hpp"
-#include "enemyTurret.hpp"
-#include "enemySpawner.hpp"
-#include "enemySniper.hpp"
-#include "enemyCharger.hpp"
+#include "Bullet.hpp"
+#include "Player.hpp"
+#include "Wall.hpp"
+#include "EnemyShooter.hpp"
+#include "EnemyTurret.hpp"
+#include "EnemySpawner.hpp"
+#include "EnemySniper.hpp"
+#include "EnemyCharger.hpp"
 
 const int displayX = 1000;
 const int displayY = 1000;
 const int bulletRadius = 15;
-const sf::Color backgroundColor(210,200,180);
+const sf::Color backgroundColor(0,0,0);
 
 double calcul_angle(int startX, int startY, int endX, int endY){
     return atan2(startY-endY,endX-startX);
@@ -91,8 +91,8 @@ int main(void){
     std::vector<EnemySpawner> enemiesSpawner;
     enemiesSpawner.emplace_back(400,400);
 
-    //Init EnemySeeking Array
-    std::vector<EnemySeeking> enemiesSeeking;
+    //Init EnemySeeker Array
+    std::vector<EnemySeeker> enemiesSeeker;
 
     //Init EnemySniper Array
     std::vector<EnemySniper> enemiesSniper;
@@ -203,12 +203,12 @@ int main(void){
                 }
                 //////Enemy Turret
                 idEnemy=0;
-                while(idEnemy < enemiesSeeking.size() && !bulletDestroyed){
-                    if(enemiesSeeking[idEnemy].getShot(bullets[idBullet])){
+                while(idEnemy < enemiesSeeker.size() && !bulletDestroyed){
+                    if(enemiesSeeker[idEnemy].getShot(bullets[idBullet])){
                         bulletsToDelete.insert(idBullet);
                         bulletDestroyed = true;
-                        if(enemiesSeeking[idEnemy].getHP()<=0){
-                            enemiesSeeking.erase(enemiesSeeking.begin()+idEnemy);
+                        if(enemiesSeeker[idEnemy].getHP()<=0){
+                            enemiesSeeker.erase(enemiesSeeker.begin()+idEnemy);
                         }
                     }
                     idEnemy++;
@@ -311,14 +311,14 @@ int main(void){
 
         ////EnemySpawner update
         for(EnemySpawner &enemy : enemiesSpawner){
-            enemy.update(enemiesSeeking, currentTime);
+            enemy.update(enemiesSeeker, currentTime);
             enemy.draw(window);
 
             player.getHit(enemy.getX(),enemy.getY());
         }
 
-        ////EnemySeeking update
-        for(EnemySeeking &enemy : enemiesSeeking){
+        ////EnemySeeker update
+        for(EnemySeeker &enemy : enemiesSeeker){
             float angleEnemyToPlayer = calcul_angle(enemy.getX(),enemy.getY(),player.getX(),player.getY());
             enemy.update(angleEnemyToPlayer, walls);
             enemy.draw(window);
