@@ -6,8 +6,9 @@
 
 class EnemyShooter{
     public:
-        EnemyShooter(float x, float y);
+        EnemyShooter(float x, float y, int level);
         void update(std::vector<Bullet>& bullets, float timePassed, float targetAngle, std::vector<Wall> walls);
+        void shoot(std::vector<Bullet> &bullets);
         void move(float targetAngle, std::vector<Wall> walls);
         void draw(sf::RenderWindow& window);
         bool getShot(Bullet bullet);
@@ -18,5 +19,5 @@ class EnemyShooter{
 
     private:
         float x,y,speed,angle,shootTimer;
-        int hp;
+        int hp, level;
 };

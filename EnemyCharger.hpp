@@ -6,9 +6,9 @@
 
 class EnemyCharger{
     public:
-        EnemyCharger(float x, float y);
-        void update(float timePassed, float targetAngle, std::vector<Wall> walls);
-        void move(std::vector<Wall> walls);
+        EnemyCharger(float x, float y, int level);
+        void update(float timePassed, float targetAngle, std::vector<Bullet>&bullets, std::vector<Wall> walls);
+        void move(std::vector<Wall> walls,std::vector<Bullet>&bullets);
         void drawWarningZone(sf::RenderWindow& window);
         void draw(sf::RenderWindow& window);
         bool getShot(Bullet bullet);
@@ -19,5 +19,5 @@ class EnemyCharger{
 
     private:
         float x,y,speed,angle,shootTimer;
-        int hp;
+        int hp, level;
 };

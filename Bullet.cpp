@@ -27,13 +27,13 @@ void Bullet::draw(sf::RenderWindow &window) {
         quad[3].color = sf::Color::White;
 
         quad[0].position = sf::Vector2f(20 * std::cos(angle) + 10 * std::sin(angle) + x,
-                                    -20 * std::sin(angle) + 10 * std::cos(angle) + y);
+                                        -20 * std::sin(angle) + 10 * std::cos(angle) + y);
         quad[1].position = sf::Vector2f(-20 * std::cos(angle) + 10 * std::sin(angle) + x,
-                                    20 * std::sin(angle) + 10 * std::cos(angle) + y);
+                                        20 * std::sin(angle) + 10 * std::cos(angle) + y);
         quad[2].position = sf::Vector2f(-20 * std::cos(angle) - 10 * std::sin(angle) + x,
-                                    20 * std::sin(angle) - 10 * std::cos(angle) + y);
+                                        20 * std::sin(angle) - 10 * std::cos(angle) + y);
         quad[3].position = sf::Vector2f(20 * std::cos(angle) - 10 * std::sin(angle) + x,
-                                    -20 * std::sin(angle) - 10 * std::cos(angle) + y);
+                                        -20 * std::sin(angle) - 10 * std::cos(angle) + y);
         window.draw(quad);
     } 
     else {

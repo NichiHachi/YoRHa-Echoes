@@ -6,13 +6,15 @@
 #include "EnemySniper.hpp"
 #include "Wall.hpp"
 
-EnemySniper::EnemySniper(float x, float y) {
+EnemySniper::EnemySniper(float x, float y, int level) {
     this->x = x;
     this->y = y;
-    this->angle = M_PI * 3 / 2;
+    this-> level = level;
+    this->angle = M_PI*3/2;
     this->speed = 0.4;
-    this->hp = 4;
+    this->hp = 5;
     this->shootTimer = 0;
+    this->bulletSpeed = 12;
 }
 
 void EnemySniper::update(std::vector<Bullet> &bullets, float timePassed, float targetAngle, std::vector<Wall> walls) {
@@ -20,10 +22,29 @@ void EnemySniper::update(std::vector<Bullet> &bullets, float timePassed, float t
 
     // Shoot every 3.5 secondes
     shootTimer += timePassed;
-    if (shootTimer >= 3.5) {
-        bullets.emplace_back(x + cos(angle) * 15, y + sin(angle) * 15, angle, 12,
-                            false, false);
-        shootTimer = 0;
+    shoot(bullets);
+}
+
+void EnemySniper::shoot(std::vector<Bullet> &bullets){
+    switch (level) {
+        case 1 :
+            if (shootTimer >= 3) {
+                bullets.emplace_back(x+cos(angle)*15, y+sin(angle)*15, angle, bulletSpeed, false, false);
+                shootTimer = 0;
+            }
+            break;
+        case 2 :
+            if (shootTimer >= 2.5) {
+                bullets.emplace_back(x+cos(angle)*15, y+sin(angle)*15, angle, bulletSpeed, false, false);
+                shootTimer = 0;
+            }
+            break;
+        default :  
+            if (shootTimer >= 3.5) {
+                bullets.emplace_back(x+cos(angle)*15, y+sin(angle)*15, angle, bulletSpeed, false, false);
+                shootTimer = 0;
+            }
+            break;
     }
 }
 
@@ -115,8 +136,7 @@ void EnemySniper::draw(sf::RenderWindow &window) {
 bool EnemySniper::getShot(Bullet bullet) {
     int diffX = x - bullet.getX();
     int diffY = y - bullet.getY();
-    // If the border of the bullet touch the enemy (15+19 -> bullet radius + hit
-    // box enemy)
+    // If the border of the bullet touch the enemy (15+19 -> bullet radius + hitbox enemy)
     if (std::sqrt(diffX * diffX + diffY * diffY) < 34) {
         hp--;
         return true;
@@ -129,5 +149,7 @@ float EnemySniper::getX() { return x; }
 float EnemySniper::getY() { return y; }
 
 float EnemySniper::getAngle() { return angle; }
+
+float EnemySniper::getBulletSpeed() { return bulletSpeed; }
 
 int EnemySniper::getHP() { return hp; }

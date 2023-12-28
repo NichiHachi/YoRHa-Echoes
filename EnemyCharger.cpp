@@ -6,27 +6,34 @@
 #include "EnemyCharger.hpp"
 #include "Wall.hpp"
 
-EnemyCharger::EnemyCharger(float x, float y) {
+EnemyCharger::EnemyCharger(float x, float y, int level=0) {
     this->x = x;
     this->y = y;
-    this->angle = M_PI * 3 / 2;
-    this->speed = 15;
-    this->hp = 10;
+    this->level = level;
+    this->angle = M_PI*3/2;
+    this->speed = 13;
+    this->hp = 20;
     this->shootTimer = 0;
 }
 
-void EnemyCharger::update(float timePassed, float targetAngle, std::vector<Wall> walls) {
-    // Charge every 10sec
+void EnemyCharger::update(float timePassed, float targetAngle, std::vector<Bullet>&bullets, std::vector<Wall> walls) {
     shootTimer += timePassed;
     if (shootTimer > 10) {
-        move(walls);
+        move(walls,bullets);
     } 
     else {
         angle = targetAngle;
     }
 }
 
-void EnemyCharger::move(std::vector<Wall> walls) {
+void EnemyCharger::move(std::vector<Wall> walls, std::vector<Bullet>&bullets) {
+    if(level>0){
+        if(shootTimer-10>0.25){
+            bullets.emplace_back(x,y,angle+M_PI/2,3,false,false);
+            bullets.emplace_back(x,y,angle-M_PI/2,3,false,false);
+            shootTimer -= 0.25;
+        }
+    }
     bool xInWall = false;
     bool yInWall = false;
     if (walls.size() != 0) {
@@ -109,9 +116,8 @@ void EnemyCharger::draw(sf::RenderWindow &window) {
     for (int i = 0; i < 5; i++) {
         side[1].position = sf::Vector2f(x + rayon * cos(angle + i * 2 * M_PI / 5),
                                         y + -rayon * sin(angle + i * 2 * M_PI / 5));
-        side[2].position =
-            sf::Vector2f(x + rayon * cos(angle + (i + 1) * 2 * M_PI / 5),
-                        y - rayon * sin(angle + (i + 1) * 2 * M_PI / 5));
+        side[2].position =sf::Vector2f(x + rayon * cos(angle + (i + 1) * 2 * M_PI / 5),
+                                      y - rayon * sin(angle + (i + 1) * 2 * M_PI / 5));
         window.draw(side);
     }
     }
@@ -119,8 +125,7 @@ void EnemyCharger::draw(sf::RenderWindow &window) {
     bool EnemyCharger::getShot(Bullet bullet) {
     int diffX = x - bullet.getX();
     int diffY = y - bullet.getY();
-    // If the border of the bullet touch the enemy (15+25 -> bullet radius + hit
-    // box enemy)
+    // If the border of the bullet touch the enemy (15+25 -> bullet radius + hitbox enemy)
     if (std::sqrt(diffX * diffX + diffY * diffY) < 40) {
         hp--;
         return true;

@@ -8,12 +8,15 @@
 #include "Wall.hpp"
 
 // Enemy Seeker
-EnemySeeker::EnemySeeker(float x, float y, float angle) {
+EnemySeeker::EnemySeeker(float x, float y, float angle, int level) {
     this->x = x;
     this->y = y;
-    this->speed = 5.2;
-    this->hp = 3;
+    this->level = level;
+    this->speed = 3.75;
+    this->hp = 4;
+    this->angle = angle;
 }
+
 void EnemySeeker::update(float targetAngle, std::vector<Wall> walls) {
     move(targetAngle, walls);
 }
@@ -21,19 +24,19 @@ void EnemySeeker::update(float targetAngle, std::vector<Wall> walls) {
 void EnemySeeker::move(float targetAngle, std::vector<Wall> walls) {
     float angleDiff = targetAngle - angle;
     if (angleDiff > M_PI) {
-        angleDiff -= 2 * M_PI;
+        angleDiff -= 2*M_PI;
     } 
     else if (angleDiff < -M_PI) {
-        angleDiff += 2 * M_PI;
+        angleDiff += 2*M_PI;
     }
 
-    angle += angleDiff * 0.05;
+    angle += angleDiff*0.05;
 
     if (angle > M_PI) {
-        angle -= 2 * M_PI;
+        angle -= 2*M_PI;
     } 
     else if (angle < -M_PI) {
-        angle += 2 * M_PI;
+        angle += 2*M_PI;
     }
 
     bool xInWall = false;
@@ -106,18 +109,19 @@ float EnemySeeker::getY() { return y; }
 int EnemySeeker::getHP() { return hp; }
 
 // Enemy Spawner
-EnemySpawner::EnemySpawner(float x, float y) {
+EnemySpawner::EnemySpawner(float x, float y, int level) {
     this->x = x;
     this->y = y;
-    this->hp = 10;
+    this->hp = 10+4;
     this->shootTimer = 0;
+    this->level = level;
 }
 
 void EnemySpawner::update(std::vector<EnemySeeker> &enemiesSeeker, float timePassed) {
     shootTimer += timePassed;
     if (shootTimer >= 5) {
         for (int i = 0; i < 3; i++) {
-        enemiesSeeker.emplace_back(x, y, M_PI * 2 * i / 3);
+            enemiesSeeker.emplace_back(x, y, M_PI*2*i/3, level);
         }
         shootTimer = 0;
     }
@@ -150,8 +154,7 @@ void EnemySpawner::draw(sf::RenderWindow &window) {
     bool EnemySpawner::getShot(Bullet bullet) {
     int diffX = x - bullet.getX();
     int diffY = y - bullet.getY();
-    // If the border of the bullet touch the enemy (15+19 -> bullet radius + hit
-    // box enemy)
+    // If the border of the bullet touch the enemy (15+19 -> bullet radius + hitbox enemy)
     if (std::sqrt(diffX * diffX + diffY * diffY) < 34) {
         hp--;
         return true;

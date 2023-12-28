@@ -6,14 +6,15 @@
 #include "Player.hpp"
 #include "Wall.hpp"
 
-Player::Player(float x, float y) {
-    this->x = x;
-    this->y = y;
+Player::Player() {
+    this->x = 0;
+    this->y = 0;
     this->speed = 5;
     this->hp = 10;
     this->shootTimer = 0;
     this->hitTimer = 2;
 }
+
 void Player::update(std::vector<Bullet> &bullets, sf::RenderWindow &window, float timePassed, std::vector<Wall> walls) {
     move(window, walls);
 
@@ -24,6 +25,11 @@ void Player::update(std::vector<Bullet> &bullets, sf::RenderWindow &window, floa
     hitTimer += timePassed;
 
     shoot(bullets);
+}
+
+void Player::spawn(){
+    x = 500;
+    y = 900;
 }
 
 void Player::move(sf::RenderWindow &window, std::vector<Wall> walls) {

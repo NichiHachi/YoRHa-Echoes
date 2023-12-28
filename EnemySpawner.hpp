@@ -6,7 +6,7 @@
 
 class EnemySeeker{
     public:
-        EnemySeeker(float x, float y, float angle);
+        EnemySeeker(float x, float y, float angle, int level);
         void update(float targetAngle, std::vector<Wall> walls);
         void move(float targetAngle, std::vector<Wall> walls);
         void draw(sf::RenderWindow& window);
@@ -18,12 +18,12 @@ class EnemySeeker{
 
     private:
         float x,y,angle,speed;
-        int hp;
+        int hp, level;
 };
 
 class EnemySpawner{
     public :
-        EnemySpawner(float x, float y);
+        EnemySpawner(float x, float y, int level);
         void update(std::vector<EnemySeeker>& enemiesSeeker, float timePassed);
         void draw(sf::RenderWindow& window);
         bool getShot(Bullet bullet);
@@ -33,5 +33,5 @@ class EnemySpawner{
 
     private:
         float x,y,shootTimer;
-        int hp;
+        int hp, level;
 };

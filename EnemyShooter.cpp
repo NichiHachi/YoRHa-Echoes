@@ -6,12 +6,13 @@
 #include "EnemyShooter.hpp"
 #include "Wall.hpp"
 
-EnemyShooter::EnemyShooter(float x, float y) {
+EnemyShooter::EnemyShooter(float x, float y, int level) {
     this->x = x;
     this->y = y;
-    this->angle = M_PI * 3 / 2;
+    this-> level = level;
+    this->angle = M_PI*3/2;
     this->speed = 1;
-    this->hp = 5;
+    this->hp = 6;
     this->shootTimer = 0;
 }
 
@@ -20,9 +21,35 @@ void EnemyShooter::update(std::vector<Bullet> &bullets, float timePassed, float 
 
     // Shoot every 2 secondes
     shootTimer += timePassed;
-    if (shootTimer >= 2) {
-        bullets.emplace_back(x, y, angle, 3, false, true);
-        shootTimer = 0;
+    shoot(bullets);
+}
+
+void EnemyShooter::shoot(std::vector<Bullet> &bullets){
+    switch (level) {
+        case 1 :
+            if (shootTimer >= 1.8) {
+                bullets.emplace_back(x,y,angle, 3.2, false, true);
+                bullets.emplace_back(x,y,angle+M_PI/5, 3.3, false, true);
+                bullets.emplace_back(x,y,angle-M_PI/5, 3.3, false, true);
+                shootTimer = 0;
+                break;
+            }
+        case 2 :
+            if (shootTimer >= 1.4) {
+                bullets.emplace_back(x,y,angle, 3.8, false, false);
+                bullets.emplace_back(x,y,angle+M_PI/10, 3.8, false, true);
+                bullets.emplace_back(x,y,angle+M_PI/5, 3.8, false, false);
+                bullets.emplace_back(x,y,angle-M_PI/10, 3.8, false, true);
+                bullets.emplace_back(x,y,angle-M_PI/5, 3.8, false, false);
+                shootTimer = 0;
+                break;
+            }
+        default :
+            if (shootTimer >= 2) {
+                bullets.emplace_back(x, y, angle, 3, false, true);
+                shootTimer = 0;
+            }
+            break;
     }
 }
 
@@ -126,8 +153,7 @@ void EnemyShooter::draw(sf::RenderWindow &window) {
 bool EnemyShooter::getShot(Bullet bullet) {
     int diffX = x - bullet.getX();
     int diffY = y - bullet.getY();
-    // If the border of the bullet touch the enemy (15+19 -> bullet radius + hit
-    // box enemy)
+    // If the border of the bullet touch the enemy (15+19 -> bullet radius + hitbox enemy)
     if (std::sqrt(diffX * diffX + diffY * diffY) < 34) {
         hp--;
         return true;

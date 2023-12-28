@@ -7,8 +7,9 @@
 
 class Player{
     public:
-        Player(float x, float y);
+        Player();
         void update(std::vector<Bullet>& bullets,sf::RenderWindow& window,float timePassed, std::vector<Wall> walls);
+        void spawn();
         void move(sf::RenderWindow& window, std::vector<Wall> walls);
         void shoot(std::vector<Bullet>& bullets);
         bool getHit(int objectX, int objectY);

@@ -1,3 +1,6 @@
+#include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
+
 #ifndef BULLET_HPP
 #define BULLET_HPP
 class Bullet{
